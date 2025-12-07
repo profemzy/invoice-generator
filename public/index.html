@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canadian Invoice Generator</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      color: #1e40af;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #64748b;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .items-section {
+      margin-top: 20px;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    .items-table th {
+      text-align: left;
+      padding: 12px;
+      background: #f8fafc;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .items-table td {
+      padding: 8px;
+    }
+
+    .items-table input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .items-table input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .items-table .amount {
+      font-weight: 600;
+      color: #1e293b;
+      text-align: right;
+      padding-right: 12px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-danger {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+
+    .btn-add {
+      background: #ecfdf5;
+      color: #059669;
+      margin-top: 10px;
+    }
+
+    .btn-add:hover {
+      background: #d1fae5;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .preview-frame {
+      width: 100%;
+      height: 600px;
+      border: none;
+      border-radius: 8px;
+      background: white;
+    }
+
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .two-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tax-info {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+
+    .tax-info-title {
+      font-weight: 600;
+      color: #0369a1;
+      margin-bottom: 8px;
+    }
+
+    .tax-info-content {
+      font-size: 0.9rem;
+      color: #0c4a6e;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .maple-leaf {
+      color: #dc2626;
+      font-size: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><span class="maple-leaf">🍁</span> Canadian Invoice Generator</h1>
+      <p>Create professional invoices with automatic GST/HST/PST/QST calculation</p>
+    </header>
+
+    <form id="invoiceForm">
+      <div class="two-columns">
+        <!-- Company Information -->
+        <div class="card">
+          <h2 class="card-title">Your Company</h2>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Company Name *</label>
+              <input type="text" id="companyName" required value="Maple Tech Solutions Inc.">
+            </div>
+            <div class="form-group full-width">
+              <label>Street Address *</label>
+              <input type="text" id="companyStreet" required value="123 Innovation Drive">
+            </div>
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" id="companyCity" required value="Toronto">
+            </div>
+            <div class="form-group">
+              <label>Province *</label>
+              <select id="companyProvince" required>
+                <option value="AB">Alberta</option>
+                <option value="BC">British Columbia</option>
+                <option value="MB">Manitoba</option>
+                <option value="NB">New Brunswick</option>
+                <option value="NL">Newfoundland and Labrador</option>
+                <option value="NS">Nova Scotia</option>
+                <option value="NT">Northwest Territories</option>
+                <option value="NU">Nunavut</option>
+                <option value="ON" selected>Ontario</option>
+                <option value="PE">Prince Edward Island</option>
+                <option value="QC">Quebec</option>
+                <option value="SK">Saskatchewan</option>
+                <option value="YT">Yukon</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Postal Code *</label>
+              <input type="text" id="companyPostal" required value="M5V 1A1" pattern="[A-Za-z]\d[A-Za-z][ ]?\d[A-Za-z]\d">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="companyPhone" value="(416) 555-0123">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="companyEmail" value="billing@mapletechsolutions.ca">
+            </div>
+            <div class="form-group">
+              <label>Website</label>
+              <input type="url" id="companyWebsite" value="https://mapletechsolutions.ca">
+            </div>
+            <div class="form-group">
+              <label>GST/HST Number</label>
+              <input type="text" id="companyGST" value="123456789RT0001">
+            </div>
+            <div class="form-group">
+              <label>QST Number (Quebec only)</label>
+              <input type="text" id="companyQST" placeholder="1234567890TQ0001">
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Information -->
+        <div class="card">
+          <h2 class="card-title">Bill To (Client)</h2>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Client Name *</label>
+              <input type="text" id="clientName" required value="Northern Lights Corp">
+            </div>
+            <div class="form-group full-width">
+              <label>Street Address *</label>
+              <input type="text" id="clientStreet" required value="456 Business Blvd, Suite 200">
+            </div>
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" id="clientCity" required value="Vancouver">
+            </div>
+            <div class="form-group">
+              <label>Province *</label>
+              <select id="clientProvince" required>
+                <option value="AB">Alberta</option>
+                <option value="BC" selected>British Columbia</option>
+                <option value="MB">Manitoba</option>
+                <option value="NB">New Brunswick</option>
+                <option value="NL">Newfoundland and Labrador</option>
+                <option value="NS">Nova Scotia</option>
+                <option value="NT">Northwest Territories</option>
+                <option value="NU">Nunavut</option>
+                <option value="ON">Ontario</option>
+                <option value="PE">Prince Edward Island</option>
+                <option value="QC">Quebec</option>
+                <option value="SK">Saskatchewan</option>
+                <option value="YT">Yukon</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Postal Code *</label>
+              <input type="text" id="clientPostal" required value="V6B 2M2" pattern="[A-Za-z]\d[A-Za-z][ ]?\d[A-Za-z]\d">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="clientEmail" value="accounts@northernlights.ca">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" id="clientPhone" value="(604) 555-0456">
+            </div>
+          </div>
+
+          <div class="tax-info">
+            <div class="tax-info-title">📊 Tax Information</div>
+            <div class="tax-info-content" id="taxInfo">
+              Based on client's province (BC): GST 5% + PST 7% = 12% total
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Items -->
+      <div class="card">
+        <h2 class="card-title">Invoice Items</h2>
+        <div class="items-section">
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 50%">Description</th>
+                <th style="width: 15%">Quantity</th>
+                <th style="width: 20%">Unit Price (CAD)</th>
+                <th style="width: 10%">Amount</th>
+                <th style="width: 5%"></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody">
+              <tr>
+                <td><input type="text" class="item-desc" value="Web Development Services - November 2025" required></td>
+                <td><input type="number" class="item-qty" value="40" min="0" step="0.5" required></td>
+                <td><input type="number" class="item-price" value="150" min="0" step="0.01" required></td>
+                <td class="amount">$6,000.00</td>
+                <td><button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button></td>
+              </tr>
+              <tr>
+                <td><input type="text" class="item-desc" value="UI/UX Design Consultation" required></td>
+                <td><input type="number" class="item-qty" value="8" min="0" step="0.5" required></td>
+                <td><input type="number" class="item-price" value="175" min="0" step="0.01" required></td>
+                <td class="amount">$1,400.00</td>
+                <td><button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <button type="button" class="btn btn-add" onclick="addItem()">+ Add Item</button>
+        </div>
+      </div>
+
+      <!-- Additional Info -->
+      <div class="card">
+        <h2 class="card-title">Additional Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Invoice Number</label>
+            <input type="text" id="invoiceNumber" placeholder="Auto-generated if empty">
+          </div>
+          <div class="form-group">
+            <label>Issue Date</label>
+            <input type="date" id="issueDate">
+          </div>
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="dueDate">
+          </div>
+          <div class="form-group full-width">
+            <label>Notes</label>
+            <textarea id="notes" placeholder="Thank you for your business!">Thank you for your business! We appreciate working with you.</textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Terms & Conditions</label>
+            <textarea id="terms">Payment due within 30 days of invoice date. Please make cheques payable to Maple Tech Solutions Inc. or e-Transfer to billing@mapletechsolutions.ca</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="buttons-row">
+        <button type="button" class="btn btn-primary" onclick="previewInvoice()">👁️ Preview Invoice</button>
+        <button type="button" class="btn btn-primary" onclick="downloadPDF()">📄 Download PDF</button>
+      </div>
+    </form>
+
+    <!-- Preview Section -->
+    <div class="card" id="previewSection" style="display: none;">
+      <h2 class="card-title">Invoice Preview</h2>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Generating your invoice...</p>
+      </div>
+      <iframe id="previewFrame" class="preview-frame"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Tax rates by province
+    const taxRates = {
+      AB: { gst: 5, pst: 0, hst: 0, qst: 0, name: 'Alberta (GST 5%)' },
+      BC: { gst: 5, pst: 7, hst: 0, qst: 0, name: 'British Columbia (GST 5% + PST 7%)' },
+      MB: { gst: 5, pst: 7, hst: 0, qst: 0, name: 'Manitoba (GST 5% + PST 7%)' },
+      NB: { gst: 0, pst: 0, hst: 15, qst: 0, name: 'New Brunswick (HST 15%)' },
+      NL: { gst: 0, pst: 0, hst: 15, qst: 0, name: 'Newfoundland (HST 15%)' },
+      NS: { gst: 0, pst: 0, hst: 15, qst: 0, name: 'Nova Scotia (HST 15%)' },
+      NT: { gst: 5, pst: 0, hst: 0, qst: 0, name: 'Northwest Territories (GST 5%)' },
+      NU: { gst: 5, pst: 0, hst: 0, qst: 0, name: 'Nunavut (GST 5%)' },
+      ON: { gst: 0, pst: 0, hst: 13, qst: 0, name: 'Ontario (HST 13%)' },
+      PE: { gst: 0, pst: 0, hst: 15, qst: 0, name: 'Prince Edward Island (HST 15%)' },
+      QC: { gst: 5, pst: 0, hst: 0, qst: 9.975, name: 'Quebec (GST 5% + QST 9.975%)' },
+      SK: { gst: 5, pst: 6, hst: 0, qst: 0, name: 'Saskatchewan (GST 5% + PST 6%)' },
+      YT: { gst: 5, pst: 0, hst: 0, qst: 0, name: 'Yukon (GST 5%)' },
+    };
+
+    // Set default dates
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const dueDate = new Date(today);
+      dueDate.setDate(dueDate.getDate() + 30);
+
+      document.getElementById('issueDate').value = today.toISOString().split('T')[0];
+      document.getElementById('dueDate').value = dueDate.toISOString().split('T')[0];
+
+      // Add event listeners for calculations
+      document.getElementById('itemsBody').addEventListener('input', updateAmounts);
+      document.getElementById('clientProvince').addEventListener('change', updateTaxInfo);
+
+      updateAmounts();
+    });
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-CA', {
+        style: 'currency',
+        currency: 'CAD'
+      }).format(amount);
+    }
+
+    function updateAmounts() {
+      const rows = document.querySelectorAll('#itemsBody tr');
+      rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.item-price').value) || 0;
+        const amount = qty * price;
+        row.querySelector('.amount').textContent = formatCurrency(amount);
+      });
+    }
+
+    function updateTaxInfo() {
+      const province = document.getElementById('clientProvince').value;
+      const rate = taxRates[province];
+      let taxText = `Based on client's province (${province}): `;
+
+      if (rate.hst > 0) {
+        taxText += `HST ${rate.hst}%`;
+      } else {
+        const parts = [];
+        if (rate.gst > 0) parts.push(`GST ${rate.gst}%`);
+        if (rate.pst > 0) parts.push(`PST ${rate.pst}%`);
+        if (rate.qst > 0) parts.push(`QST ${rate.qst}%`);
+        taxText += parts.join(' + ');
+
+        const total = rate.gst + rate.pst + rate.qst;
+        if (parts.length > 1) {
+          taxText += ` = ${total}% total`;
+        }
+      }
+
+      document.getElementById('taxInfo').textContent = taxText;
+    }
+
+    function addItem() {
+      const tbody = document.getElementById('itemsBody');
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" class="item-desc" placeholder="Description" required></td>
+        <td><input type="number" class="item-qty" value="1" min="0" step="0.5" required></td>
+        <td><input type="number" class="item-price" value="0" min="0" step="0.01" required></td>
+        <td class="amount">$0.00</td>
+        <td><button type="button" class="btn btn-danger" onclick="removeItem(this)">×</button></td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    function removeItem(btn) {
+      const tbody = document.getElementById('itemsBody');
+      if (tbody.children.length > 1) {
+        btn.closest('tr').remove();
+      }
+    }
+
+    function getFormData() {
+      const items = [];
+      document.querySelectorAll('#itemsBody tr').forEach(row => {
+        items.push({
+          description: row.querySelector('.item-desc').value,
+          quantity: parseFloat(row.querySelector('.item-qty').value) || 0,
+          unitPrice: parseFloat(row.querySelector('.item-price').value) || 0,
+        });
+      });
+
+      return {
+        company: {
+          name: document.getElementById('companyName').value,
+          address: {
+            street: document.getElementById('companyStreet').value,
+            city: document.getElementById('companyCity').value,
+            province: document.getElementById('companyProvince').value,
+            postalCode: document.getElementById('companyPostal').value,
+            country: 'Canada',
+          },
+          phone: document.getElementById('companyPhone').value || undefined,
+          email: document.getElementById('companyEmail').value || undefined,
+          website: document.getElementById('companyWebsite').value || undefined,
+          gstNumber: document.getElementById('companyGST').value || undefined,
+          qstNumber: document.getElementById('companyQST').value || undefined,
+        },
+        client: {
+          name: document.getElementById('clientName').value,
+          address: {
+            street: document.getElementById('clientStreet').value,
+            city: document.getElementById('clientCity').value,
+            province: document.getElementById('clientProvince').value,
+            postalCode: document.getElementById('clientPostal').value,
+            country: 'Canada',
+          },
+          email: document.getElementById('clientEmail').value || undefined,
+          phone: document.getElementById('clientPhone').value || undefined,
+        },
+        items,
+        invoiceNumber: document.getElementById('invoiceNumber').value || undefined,
+        issueDate: formatDateForApi(document.getElementById('issueDate').value),
+        dueDate: formatDateForApi(document.getElementById('dueDate').value),
+        notes: document.getElementById('notes').value || undefined,
+        terms: document.getElementById('terms').value || undefined,
+      };
+    }
+
+    function formatDateForApi(dateStr) {
+      if (!dateStr) return undefined;
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-CA', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    }
+
+    async function previewInvoice() {
+      const previewSection = document.getElementById('previewSection');
+      const loading = document.getElementById('loading');
+      const frame = document.getElementById('previewFrame');
+
+      previewSection.style.display = 'block';
+      loading.classList.add('active');
+      frame.style.display = 'none';
+
+      try {
+        const response = await fetch('/api/invoice/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getFormData()),
+        });
+
+        if (!response.ok) throw new Error('Failed to generate preview');
+
+        const html = await response.text();
+        frame.srcdoc = html;
+        frame.style.display = 'block';
+      } catch (error) {
+        alert('Error generating preview: ' + error.message);
+      } finally {
+        loading.classList.remove('active');
+      }
+
+      previewSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function downloadPDF() {
+      const loading = document.getElementById('loading');
+      const previewSection = document.getElementById('previewSection');
+
+      previewSection.style.display = 'block';
+      loading.classList.add('active');
+
+      try {
+        const response = await fetch('/api/invoice/pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(getFormData()),
+        });
+
+        if (!response.ok) throw new Error('Failed to generate PDF');
+
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `invoice-${document.getElementById('invoiceNumber').value || 'new'}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (error) {
+        alert('Error generating PDF: ' + error.message);
+      } finally {
+        loading.classList.remove('active');
+        previewSection.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
